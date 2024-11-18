@@ -2,14 +2,14 @@ package ru.home.courses.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-
 import ru.home.courses.enums.OrderStatus;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class OrderDTO {
+public class OrderResponseDTO {
     private Long id;
-    private Long userId;
-    private Long courseId;
+    private LocalDateTime orderDate;
     private OrderStatus status;
 }

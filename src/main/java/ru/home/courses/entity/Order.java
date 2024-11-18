@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class Order {
 
     @Id
@@ -26,7 +26,7 @@ public class Order {
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
-    @Column(name = "order_date", nullable = false)
+    @Column(name = "order_date")
     private LocalDateTime orderDate;
 
     @Enumerated(EnumType.STRING)

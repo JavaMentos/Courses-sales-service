@@ -3,6 +3,7 @@ package ru.home.courses.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import ru.home.courses.dto.CourseDTO;
 import ru.home.courses.service.CourseService;
@@ -42,5 +43,11 @@ public class CourseController {
     public ResponseEntity<String> deleteCourse(@PathVariable Long id) {
         courseService.deleteCourse(id);
         return ResponseEntity.ok("Course deleted successfully");
+    }
+
+    @GetMapping("/purchased")
+    public ResponseEntity<List<CourseDTO>> getPurchasedCourses(Authentication authentication) {
+        String email = authentication.getName();
+        return ResponseEntity.ok(courseService.getPurchasedCourses(email));
     }
 }

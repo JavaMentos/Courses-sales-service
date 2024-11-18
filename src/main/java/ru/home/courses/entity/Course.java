@@ -5,7 +5,9 @@ import lombok.*;
 import ru.home.courses.enums.CourseStatus;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "courses")
@@ -34,4 +36,7 @@ public class Course {
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Video> videos = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "purchasedCourses")
+    private Set<User> users = new HashSet<>();
 }

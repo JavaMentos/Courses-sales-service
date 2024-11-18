@@ -17,8 +17,8 @@ CREATE TABLE courses (
                          id BIGSERIAL PRIMARY KEY,
                          name VARCHAR(100) NOT NULL,
                          description TEXT,
-                         price BIGINT,
-                         status VARCHAR(50) NOT NULL,
+                         price BIGINT NOT NULL,
+                         status VARCHAR(50) NOT NULL CHECK (status IN ('AVAILABLE', 'IN_CREATION', 'UNAVAILABLE')),
                          created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -36,4 +36,10 @@ CREATE TABLE orders (
                         course_id BIGINT REFERENCES courses(id),
                         order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         status VARCHAR(50)
+);
+
+CREATE TABLE user_courses (
+                              user_id BIGINT REFERENCES users(id),
+                              course_id BIGINT REFERENCES courses(id),
+                              PRIMARY KEY (user_id, course_id)
 );

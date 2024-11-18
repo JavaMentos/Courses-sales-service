@@ -4,13 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.home.courses.dto.CourseDTO;
 import ru.home.courses.entity.Course;
+import ru.home.courses.entity.User;
 import ru.home.courses.enums.CourseStatus;
 import ru.home.courses.exception.CourseAlreadyExistsException;
-import ru.home.courses.exception.CourseNotFoundException;
+import ru.home.courses.exception.NotFoundException;
 import ru.home.courses.mapper.CourseMapper;
 import ru.home.courses.repository.CourseRepository;
+import ru.home.courses.repository.UserRepository;
 import ru.home.courses.repository.VideoRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,6 +23,7 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final VideoRepository videoRepository;
     private final CourseMapper courseMapper;
+    private final UserRepository userRepository;
 
     public List<CourseDTO> getAllCourses() {
         return courseMapper.toDTOs(courseRepository.findAll());
@@ -28,7 +32,7 @@ public class CourseService {
 
     public CourseDTO getCourseById(Long id) {
         return courseMapper.toDTO(courseRepository.findById(id)
-                .orElseThrow(() -> new CourseNotFoundException("Course with id " + id + " not found")));
+                .orElseThrow(() -> new NotFoundException("Course with id " + id + " not found")));
     }
 
     public void createCourse(CourseDTO courseDTO) {
@@ -41,7 +45,7 @@ public class CourseService {
 
     public void updateCourse(CourseDTO courseDTO) {
         Course course = courseRepository.findByName(courseDTO.getName())
-                .orElseThrow(() -> new CourseNotFoundException("Course with name " + courseDTO.getName() + " not found"));
+                .orElseThrow(() -> new NotFoundException("Course with name " + courseDTO.getName() + " not found"));
         course.setName(courseDTO.getName());
         course.setDescription(courseDTO.getDescription());
         course.setPrice(courseDTO.getPrice());
@@ -51,8 +55,15 @@ public class CourseService {
 
     public void deleteCourse(Long id) {
         if (!courseRepository.existsById(id)) {
-            throw new CourseNotFoundException("Course with id " + id + " not found");
+            throw new NotFoundException("Course with id " + id + " not found");
         }
         courseRepository.deleteById(id);
+    }
+
+    public List<CourseDTO> getPurchasedCourses(String email) {
+        User user = userRepository.findByEmailAndActiveCourses(email)
+                .orElseThrow(() -> new NotFoundException("no courses purchased"));
+
+        return courseMapper.toDTOs(new ArrayList<>(user.getPurchasedCourses()));
     }
 }

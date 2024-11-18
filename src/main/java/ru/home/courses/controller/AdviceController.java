@@ -6,13 +6,13 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.home.courses.dto.ErrorResponse;
 import ru.home.courses.exception.CourseAlreadyExistsException;
-import ru.home.courses.exception.CourseNotFoundException;
+import ru.home.courses.exception.NotFoundException;
 
 @ControllerAdvice
 public class AdviceController {
 
-    @ExceptionHandler(CourseNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleCourseNotFoundException(CourseNotFoundException ex) {
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCourseNotFoundException(NotFoundException ex) {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
                 ex.getMessage(),
