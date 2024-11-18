@@ -21,12 +21,14 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody CreateUser user) {
         userService.registerUser(user);
-        return ResponseEntity.ok("User registered successfully");
+        return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
     }
 
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody LoginRequest loginRequest) {
         boolean success = userService.loginUser(loginRequest.getEmail(), loginRequest.getPassword());
-        return success ? ResponseEntity.ok("Login successful") : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        return success ?
+                ResponseEntity.ok("Login successful") :
+                ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
     }
 }

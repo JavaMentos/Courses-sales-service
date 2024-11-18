@@ -3,7 +3,7 @@ package ru.home.courses.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.home.courses.dto.OrderDTO;
-import ru.home.courses.dto.OrderResponseDTO;
+import ru.home.courses.dto.OrderResponse;
 import ru.home.courses.entity.Course;
 import ru.home.courses.entity.Order;
 import ru.home.courses.entity.User;
@@ -28,7 +28,7 @@ public class OrderService {
     private final OrderMapper orderMapper;
 
 
-    public OrderResponseDTO createOrder(OrderDTO orderDTO) {
+    public OrderResponse createOrder(OrderDTO orderDTO) {
         User user = userRepository.findById(orderDTO.getUserId())
                 .orElseThrow(() -> new NotFoundException("User not found"));
         Course course = courseRepository.findById(orderDTO.getCourseId())
@@ -58,7 +58,7 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
-    public OrderResponseDTO updateOrderStatus(Long orderId, OrderStatus status) {
+    public OrderResponse updateOrderStatus(Long orderId, OrderStatus status) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException("Order not found"));
         order.setStatus(status);

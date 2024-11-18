@@ -2,6 +2,7 @@ package ru.home.courses.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.home.courses.dto.ErrorResponse;
@@ -49,5 +50,10 @@ public class AdviceController {
                 System.currentTimeMillis()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
     }
 }

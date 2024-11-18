@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class OrderResponseDTO {
+public class OrderResponse {
     private Long id;
     private LocalDateTime orderDate;
     private OrderStatus status;

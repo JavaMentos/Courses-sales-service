@@ -2,7 +2,6 @@ package ru.home.courses.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.home.courses.entity.Course;
-import ru.home.courses.entity.Role;
 
 import java.util.Optional;
 

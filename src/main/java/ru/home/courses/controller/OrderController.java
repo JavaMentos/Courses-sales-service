@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.home.courses.dto.OrderDTO;
-import ru.home.courses.dto.OrderResponseDTO;
+import ru.home.courses.dto.OrderResponse;
 import ru.home.courses.enums.OrderStatus;
 import ru.home.courses.service.OrderService;
 
@@ -19,7 +19,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<OrderResponseDTO> createOrder(@RequestBody OrderDTO orderDTO) {
+    public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderDTO orderDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(orderDTO));
     }
 
@@ -29,7 +29,7 @@ public class OrderController {
     }
 
     @PatchMapping("/{orderId}/status")
-    public ResponseEntity<OrderResponseDTO> updateOrderStatus(@PathVariable Long orderId, @RequestParam("status") OrderStatus status) {
+    public ResponseEntity<OrderResponse> updateOrderStatus(@PathVariable Long orderId, @RequestParam("status") OrderStatus status) {
         return ResponseEntity.ok(orderService.updateOrderStatus(orderId, status));
     }
 }

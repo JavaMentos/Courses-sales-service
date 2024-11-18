@@ -4,13 +4,11 @@ import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import ru.home.courses.dto.CourseDTO;
 import ru.home.courses.dto.UserDTO;
 import ru.home.courses.entity.Course;
 import ru.home.courses.entity.User;
 import ru.home.courses.repository.CourseRepository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,8 +20,6 @@ public interface UserMapper {
 
     @Mapping(target = "purchasedCourses", source = "purchasedCourses", qualifiedByName = "mapIdsToCourses")
     User toEntity(UserDTO userDTO, @Context CourseRepository courseRepository);
-
-    List<UserDTO> toDTOs(List<User> users);
 
     @Named("mapCoursesToIds")
     default Set<Long> mapCoursesToIds(Set<Course> courses) {
