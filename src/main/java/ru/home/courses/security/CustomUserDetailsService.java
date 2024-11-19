@@ -16,12 +16,12 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Находим пользователя по email
+
         return userRepository.findByEmail(username)
                 .map(user -> User.builder()
                         .username(user.getEmail())
                         .password(user.getPassword())
-                        .roles(user.getRole().getName()) // Преобразуем роль
+                        .roles(user.getRole().getName())
                         .build())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }

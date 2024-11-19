@@ -70,19 +70,26 @@ public class VideoService {
     }
 
     private Resource createZipArchive(List<Video> userVideos) {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        try (ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+             ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
+
             for (Video video : userVideos) {
-                Path videoPath = Paths.get(baseStoragePath).resolve(video.getPath()).normalize();
+                Path videoPath = Paths.get(baseStoragePath, video.getPath(), video.getName()).normalize();
 
                 if (!Files.exists(videoPath) || !Files.isReadable(videoPath)) {
-                    throw new NotFoundException("Video not found or not accessible: " + video.getPath());
+                    throw new NotFoundException("Video not found or not accessible: " + videoPath.toAbsolutePath());
                 }
 
                 zipOutputStream.putNextEntry(new ZipEntry(video.getName()));
-                Files.copy(videoPath, zipOutputStream);
+
+                try (var fileInputStream = Files.newInputStream(videoPath)) {
+                    fileInputStream.transferTo(zipOutputStream);
+                }
+
                 zipOutputStream.closeEntry();
             }
+
+            zipOutputStream.finish();
 
             return new InputStreamResource(new ByteArrayInputStream(byteArrayOutputStream.toByteArray()));
         } catch (IOException ex) {
