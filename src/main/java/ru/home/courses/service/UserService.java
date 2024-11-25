@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.home.courses.dto.CreateUser;
 import ru.home.courses.entity.Role;
 import ru.home.courses.entity.User;
+import ru.home.courses.exception.NotFoundException;
 import ru.home.courses.mapper.CreateUserMapper;
 import ru.home.courses.repository.CourseRepository;
 import ru.home.courses.repository.RoleRepository;
@@ -24,7 +25,7 @@ public class UserService {
         User user = createUserMapper.toEntity(createUser, courseRepository);
 
         Role userRole = roleRepository.findByName("USER")
-                .orElseThrow(() -> new RuntimeException("Role not found"));
+                .orElseThrow(() -> new NotFoundException("Role not found"));
         user.setRole(userRole);
 
         user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
@@ -34,7 +35,7 @@ public class UserService {
 
     public boolean loginUser(String email, String password) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         return passwordEncoder.matches(password, user.getPassword());
     }

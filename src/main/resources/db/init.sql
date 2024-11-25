@@ -18,7 +18,7 @@ CREATE TABLE courses (
                          name VARCHAR(100) NOT NULL,
                          description TEXT,
                          price BIGINT NOT NULL,
-                         status VARCHAR(50) NOT NULL CHECK (status IN ('AVAILABLE', 'IN_CREATION', 'UNAVAILABLE')),
+                         status VARCHAR(50) NOT NULL CHECK (status IN ('AVAILABLE', 'IN_CREATION', 'DELETED')),
                          created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
