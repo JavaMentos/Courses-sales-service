@@ -57,23 +57,37 @@ public class VideoService {
     }
 
     @Transactional
-    public Resource getVideoResource(String email) {
+    public Resource getVideoResource(String email, Long videoId) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        List<Video> userVideos = user.getPurchasedCourses()
-                .stream()
-                .flatMap(course -> course.getVideos().stream())
-                .toList();
+        Video video;
 
-        return createZipArchive(userVideos);
+        if (user.getRole().getName().equals("ADMIN")) {
+             video = videoRepository.findById(videoId)
+                    .orElseThrow(() -> new NotFoundException("video not found"));
+        } else {
+            video = user.getPurchasedCourses()
+                    .stream()
+                    .flatMap(course -> course.getVideos().stream())
+                    .filter(v -> v.getId().equals(videoId))
+                    .findAny()
+                    .orElseThrow(() -> new NotFoundException("video not found"));
+        }
+            //
+//        List<Video> userVideos = user.getPurchasedCourses()
+//                .stream()
+//                .flatMap(course -> course.getVideos().stream())
+//                .toList();
+
+        return createZipArchive(video);
     }
 
-    private Resource createZipArchive(List<Video> userVideos) {
+    private Resource createZipArchive(Video video) {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
 
-            for (Video video : userVideos) {
+//            for (Video video : userVideos) {
                 Path videoPath = Paths.get(baseStoragePath, video.getPath(), video.getName()).normalize();
 
                 if (!Files.exists(videoPath) || !Files.isReadable(videoPath)) {
@@ -87,7 +101,7 @@ public class VideoService {
                 }
 
                 zipOutputStream.closeEntry();
-            }
+//            }
 
             zipOutputStream.finish();
 
@@ -96,4 +110,32 @@ public class VideoService {
             throw new RuntimeException("Error occurred while creating ZIP archive", ex);
         }
     }
+
+//    private Resource createZipArchive(List<Video> userVideos) {
+//        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//             ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
+//
+//            for (Video video : userVideos) {
+//                Path videoPath = Paths.get(baseStoragePath, video.getPath(), video.getName()).normalize();
+//
+//                if (!Files.exists(videoPath) || !Files.isReadable(videoPath)) {
+//                    throw new NotFoundException("Video not found or not accessible: " + videoPath.toAbsolutePath());
+//                }
+//
+//                zipOutputStream.putNextEntry(new ZipEntry(video.getName()));
+//
+//                try (var fileInputStream = Files.newInputStream(videoPath)) {
+//                    fileInputStream.transferTo(zipOutputStream);
+//                }
+//
+//                zipOutputStream.closeEntry();
+//            }
+//
+//            zipOutputStream.finish();
+//
+//            return new InputStreamResource(new ByteArrayInputStream(byteArrayOutputStream.toByteArray()));
+//        } catch (IOException ex) {
+//            throw new RuntimeException("Error occurred while creating ZIP archive", ex);
+//        }
+//    }
 }

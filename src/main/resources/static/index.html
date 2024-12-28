@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Management</title>
+    <script>
+        async function sendRequest(endpoint, method = 'GET', body = null) {
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+
+            try {
+                const response = await fetch(endpoint, {
+                    method,
+                    headers,
+                    body: body ? JSON.stringify(body) : null
+                });
+
+                if (!response.ok) {
+                    let errorMessage = 'Unknown error';
+                    try {
+                        const error = await response.json();
+                        errorMessage = error.message || errorMessage;
+                    } catch (e) {
+                        console.error('Failed to parse error response:', e);
+                    }
+                    alert(`Error: ${errorMessage}`);
+                    return null;
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('Request failed:', error);
+                alert('An error occurred. Check console for details.');
+                return null;
+            }
+        }
+
+        async function getCurrentUser() {
+            const user = await sendRequest('/auth/current-user');
+            if (user) {
+                document.getElementById('currentUser').textContent = `Logged in as: ${user.name} (${user.email})`;
+
+                if (user.role === 'ADMIN') {
+                    document.getElementById('adminSection').style.display = 'block';
+                } else {
+                    document.getElementById('userSection').style.display = 'block';
+                }
+            } else {
+                alert('Unable to fetch current user.');
+            }
+        }
+
+        async function registerUser() {
+            const user = {
+                email: document.getElementById('regEmail').value,
+                password: document.getElementById('regPassword').value,
+                name: document.getElementById('regName').value,
+                phoneNumber: document.getElementById('regPhone').value,
+                dateOfBirth: document.getElementById('regDob').value
+            };
+
+            if (!user.email || !user.password || !user.name || !user.phoneNumber || !user.dateOfBirth) {
+                alert('Please fill out all fields!');
+                return;
+            }
+
+            const result = await sendRequest('/auth/register', 'POST', user);
+            if (result) alert('User registered successfully!');
+        }
+
+        async function fetchCourses() {
+            const courses = await sendRequest('/courses');
+            const courseList = document.getElementById('courseList');
+            courseList.innerHTML = '';
+
+            if (courses && Array.isArray(courses)) {
+                courses.forEach(course => {
+                    const li = document.createElement('li');
+
+                    li.innerHTML = `
+                <strong>Course ID:</strong> ${course.id} <br>
+                <strong>Name:</strong> ${course.name} <br>
+                <strong>Description:</strong> ${course.description} <br>
+                <strong>Price:</strong> $${course.price} <br>
+                <strong>Status:</strong> ${course.status} <br>
+                <button onclick="toggleVideos(${course.id})">Show Videos</button>
+                <ul id="videoList-${course.id}" style="display: none; margin-left: 20px;"></ul>
+            `;
+
+                    courseList.appendChild(li);
+                });
+            } else {
+                alert('No courses found or an error occurred.');
+            }
+        }
+
+        async function fetchPurchasedCourses() {
+            const courses = await sendRequest('/courses/purchased');
+            const courseList = document.getElementById('courseList');
+
+            courseList.innerHTML = '';
+
+            if (courses && Array.isArray(courses) && courses.length > 0) {
+                courses.forEach(course => {
+
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                <strong>Course ID:</strong> ${course.id} <br>
+                <strong>Name:</strong> ${course.name} <br>
+                <strong>Description:</strong> ${course.description || 'No description'} <br>
+                <strong>Price:</strong> $${course.price || 0} <br>
+                <strong>Status:</strong> ${course.status || 'No status'} <br>
+                <button onclick="toggleVideos(${course.id})">Show Videos</button>
+                <ul id="videoList-${course.id}" style="display: none; margin-left: 20px;"></ul>
+            `;
+                    courseList.appendChild(li);
+                });
+            } else {
+                alert('No purchased courses found or an error occurred.');
+            }
+        }
+
+        async function toggleVideos(courseId) {
+            const videoList = document.getElementById(`videoList-${courseId}`);
+
+            if (videoList.style.display === 'block') {
+                videoList.style.display = 'none';
+                return;
+            }
+
+            const videos = await sendRequest(`/videos/${courseId}`);
+            videoList.innerHTML = '';
+
+            if (videos && Array.isArray(videos)) {
+                videos.forEach(video => {
+                    const videoLi = document.createElement('li');
+                    videoLi.innerHTML = `
+                <strong>Video ID:</strong> ${video.id} <br>
+                <strong>Name:</strong> ${video.name} <br>
+                <strong>Description:</strong> ${video.description} <br>
+                <strong>Path:</strong> <a href="/videos/download/${video.id}" target="_blank">Download</a>
+            `;
+                    videoList.appendChild(videoLi);
+                });
+            } else {
+                videoList.innerHTML = '<li>No videos found for this course.</li>';
+            }
+
+            videoList.style.display = 'block';
+        }
+
+        async function logoutUser() {
+            try {
+                const response = await fetch('/logout', {
+                    method: 'POST',
+                    credentials: 'same-origin'
+                });
+
+                if (response.ok) {
+                    alert('Logged out successfully!');
+                    window.location.href = '/login';
+                } else {
+                    alert('Logout failed.');
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('An error occurred while logging out.');
+            }
+        }
+
+        async function deleteCourse() {
+            const courseId = prompt('Enter Course ID to delete:');
+            if (!courseId) return;
+
+            const result = await sendRequest(`/courses/${courseId}`, 'DELETE');
+            if (result) alert('Course deleted successfully!');
+        }
+
+        window.onload = function () {
+            getCurrentUser();
+        };
+    </script>
+</head>
+<body>
+<h1>Course Management</h1>
+
+<section>
+    <h2>Current User</h2>
+    <p id="currentUser">Not logged in</p>
+    <button onclick="logoutUser()">Logout</button>
+</section>
+
+<section id="adminSection" style="display: none;">
+    <h2>Admin Panel</h2>
+    <button onclick="fetchCourses()">Fetch All Courses</button>
+    <button onclick="deleteCourse()">Delete Course</button>
+    <button onclick="logoutUser()">Logout</button>
+</section>
+
+
+<section id="userSection" style="display: none;">
+    <h2>User Panel</h2>
+    <button onclick="fetchPurchasedCourses()">View Purchased Courses</button>
+    <button onclick="logoutUser()">Logout</button>
+</section>
+
+<ul id="courseList"></ul>
+
+</body>
+</html>

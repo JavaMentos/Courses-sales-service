@@ -7,9 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import ru.home.courses.dto.VideoDTO;
+import ru.home.courses.exception.NotFoundException;
 import ru.home.courses.service.OrderService;
 import ru.home.courses.service.VideoService;
 
@@ -24,12 +26,19 @@ public class VideoController {
     private final OrderService orderService;
 
     @GetMapping("/{courseId}")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<VideoDTO>> getVideosByCourse(
             @PathVariable Long courseId, Authentication authentication) {
 
         String email = authentication.getName();
-        if (!orderService.isCoursePurchasedByUser(courseId, email)) {
+        String role = authentication.getAuthorities().stream().findFirst().get().toString();
+        if (!orderService.isCoursePurchasedByUser(courseId, email) && !role.equalsIgnoreCase("role_admin")) {
             throw new AccessDeniedException("You do not have access to this course");
+        }
+
+        List<VideoDTO> videosByCourse = videoService.getVideosByCourse(courseId);
+        if (videosByCourse.isEmpty()) {
+            throw new NotFoundException("Video not found");
         }
 
         return ResponseEntity.ok(videoService.getVideosByCourse(courseId));
@@ -41,12 +50,12 @@ public class VideoController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Video added successfully");
     }
 
-    @GetMapping("/download")
+    @GetMapping("/download/{videoId}")
     public ResponseEntity<Resource> downloadVideo(
-            Authentication authentication) {
+            @PathVariable Long videoId, Authentication authentication) {
 
         String userName = authentication.getName();
-        Resource resource = videoService.getVideoResource(userName);
+        Resource resource = videoService.getVideoResource(userName, videoId);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"videos.zip\"")

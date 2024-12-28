@@ -16,9 +16,12 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring", uses = {CourseRepository.class})
 public interface UserMapper {
     @Mapping(target = "purchasedCourses", source = "purchasedCourses", qualifiedByName = "mapCoursesToIds")
+    @Mapping(target = "role", source = "role.name")
+    @Mapping(target = "name", source = "name")
     UserDTO toDTO(User user);
 
     @Mapping(target = "purchasedCourses", source = "purchasedCourses", qualifiedByName = "mapIdsToCourses")
+    @Mapping(target = "role", ignore = true)
     User toEntity(UserDTO userDTO, @Context CourseRepository courseRepository);
 
     @Named("mapCoursesToIds")

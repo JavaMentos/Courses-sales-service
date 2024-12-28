@@ -2,6 +2,7 @@ package ru.home.courses.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import ru.home.courses.entity.Role;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -12,7 +13,6 @@ public class UserDTO {
     private Long id;
     private String email;
     private String name;
-    private String phoneNumber;
-    private LocalDate dateOfBirth;
+    private String role;
     private Set<Long> purchasedCourses;
 }

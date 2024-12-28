@@ -3,12 +3,11 @@ package ru.home.courses.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 import ru.home.courses.dto.CreateUser;
 import ru.home.courses.dto.LoginRequest;
+import ru.home.courses.dto.UserDTO;
 import ru.home.courses.service.UserService;
 
 @RequiredArgsConstructor
@@ -30,5 +29,11 @@ public class AuthController {
         return success ?
                 ResponseEntity.ok("Login successful") :
                 ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+    }
+
+    @GetMapping("/current-user")
+    public ResponseEntity<UserDTO> getCurrentUser(Authentication authentication) {
+        UserDTO user = userService.getUserByEmail(authentication.getName());
+        return ResponseEntity.ok(user);
     }
 }

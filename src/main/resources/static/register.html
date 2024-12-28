@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #121212; /* Темный фон */
+            color: #E0E0E0; /* Светлый текст */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .registration-container {
+            background-color: #1E1E1E; /* Темно-серый блок */
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+            width: 400px;
+        }
+        .registration-container h1 {
+            text-align: center;
+            color: #FFFFFF; /* Белый заголовок */
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #B0B0B0; /* Светло-серый текст для меток */
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #333333; /* Темный бордер */
+            border-radius: 5px;
+            background-color: #2E2E2E; /* Темный фон ввода */
+            color: #FFFFFF; /* Белый текст */
+        }
+        .form-group input:focus {
+            border-color: #BB86FC; /* Фиолетовый акцент при фокусе */
+            outline: none;
+        }
+        .form-actions {
+            text-align: center;
+        }
+        .form-actions button {
+            padding: 12px 25px;
+            background-color: #BB86FC; /* Фиолетовый акцент */
+            color: #FFFFFF; /* Белый текст */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .form-actions button:hover {
+            background-color: #9E6BF2; /* Более темный фиолетовый при наведении */
+        }
+        .error-message, .success-message {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .error-message {
+            color: #CF6679; /* Красный для ошибок */
+        }
+        .success-message {
+            color: #03DAC6; /* Зеленый для успеха */
+        }
+        a {
+            color: #BB86FC;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <script>
+        async function registerUser(event) {
+            event.preventDefault(); // Предотвращаем перезагрузку страницы
+
+            // Собираем данные с формы
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const name = document.getElementById('name').value;
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            const dateOfBirth = document.getElementById('dateOfBirth').value;
+
+            // Проверяем, что все поля заполнены
+            if (!email || !password || !name || !phoneNumber || !dateOfBirth) {
+                displayMessage('Please fill out all fields!', 'error');
+                return;
+            }
+
+            // Формируем объект для отправки на сервер
+            const user = { email, password, name, phoneNumber, dateOfBirth };
+
+            try {
+                // Отправляем POST-запрос на /auth/register
+                const response = await fetch('/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(user),
+                });
+
+                // Обрабатываем ответ от сервера
+                if (response.ok) {
+                    displayMessage('User registered successfully!', 'success');
+                    clearForm(); // Очищаем форму
+                } else {
+                    const error = await response.json();
+                    displayMessage(error.message || 'Registration failed!', 'error');
+                }
+            } catch (err) {
+                console.error('Registration error:', err);
+                displayMessage('An error occurred. Please try again later.', 'error');
+            }
+        }
+
+        function displayMessage(message, type) {
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.textContent = message;
+            messageContainer.className = type === 'success' ? 'success-message' : 'error-message';
+        }
+
+        function clearForm() {
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('name').value = '';
+            document.getElementById('phoneNumber').value = '';
+            document.getElementById('dateOfBirth').value = '';
+        }
+    </script>
+</head>
+<body>
+<div class="registration-container">
+    <h1>Register</h1>
+    <form onsubmit="registerUser(event)">
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter your password">
+        </div>
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" placeholder="Enter your name">
+        </div>
+        <div class="form-group">
+            <label for="phoneNumber">Phone Number</label>
+            <input type="text" id="phoneNumber" placeholder="Enter your phone number">
+        </div>
+        <div class="form-group">
+            <label for="dateOfBirth">Date of Birth</label>
+            <input type="date" id="dateOfBirth">
+        </div>
+        <div class="form-actions">
+            <button type="submit">Register</button>
+        </div>
+        <div id="messageContainer"></div>
+    </form>
+</div>
+</body>
+</html>

@@ -15,6 +15,7 @@ import ru.home.courses.repository.VideoRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -54,10 +55,11 @@ public class CourseService {
     }
 
     public void deleteCourse(Long id) {
-        if (!courseRepository.existsById(id)) {
-            throw new NotFoundException("Course with id " + id + " not found");
-        }
-        courseRepository.deleteById(id);
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Course with id " + id + " not found"));
+
+        course.setStatus(CourseStatus.DELETED);
+        courseRepository.save(course);
     }
 
     public List<CourseDTO> getPurchasedCourses(String email) {
