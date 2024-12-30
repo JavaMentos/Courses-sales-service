@@ -12,26 +12,32 @@
             margin: 0;
             padding: 0;
         }
+
         header {
             background-color: #1E1E1E; /* Темно-серый для заголовка */
             padding: 20px;
             text-align: center;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
         }
+
         header h1 {
             color: #FFFFFF; /* Белый текст */
             margin: 0;
         }
+
         main {
             padding: 20px;
         }
+
         section {
             margin-bottom: 30px;
         }
+
         section h2 {
             color: #1C531EFF; /* Зелёный акцент */
             margin-bottom: 10px;
         }
+
         button {
             padding: 10px 20px;
             background-color: #1C531EFF; /* Зелёный акцент */
@@ -42,13 +48,16 @@
             font-size: 14px;
             transition: background-color 0.3s ease;
         }
+
         button:hover {
             background-color: #1C531EFF; /* Темный зелёный */
         }
+
         ul {
             list-style-type: none;
             padding: 0;
         }
+
         ul li {
             background-color: #1E1E1E; /* Темно-серый блок */
             margin-bottom: 10px;
@@ -56,13 +65,16 @@
             border-radius: 5px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
+
         ul li strong {
             color: #E0E0E0; /* Светлый текст */
         }
+
         ul li a {
             color: #1C531EFF; /* Зелёный акцент для ссылок */
             text-decoration: none;
         }
+
         ul li a:hover {
             text-decoration: underline;
         }
@@ -177,12 +189,15 @@
             if (videos && Array.isArray(videos)) {
                 videos.forEach(video => {
                     const videoLi = document.createElement('li');
+                    const videoPlayerId = `videoPlayer-${video.id}`; // Уникальный ID для плеера
                     videoLi.innerHTML = `
-                        <strong>Video ID:</strong> ${video.id} <br>
-                        <strong>Name:</strong> ${video.name} <br>
-                        <strong>Description:</strong> ${video.description} <br>
-                        <strong>Path:</strong> <a href="/videos/download/${video.id}" target="_blank">Download</a>
-                    `;
+                <strong>Video ID:</strong> ${video.id} <br>
+                <strong>Name:</strong> ${video.name} <br>
+                <strong>Description:</strong> ${video.description} <br>
+                <button onclick="playVideo('/play/${video.name}', '${videoPlayerId}')">Play Video</button> <!-- Передаем ID плеера -->
+                <a href="/videos/download/${video.id}" target="_blank">Download</a>
+                <div id="${videoPlayerId}" style="display: none; margin-top: 10px;"></div> <!-- Контейнер для плеера -->
+            `;
                     videoList.appendChild(videoLi);
                 });
             } else {
@@ -190,6 +205,25 @@
             }
 
             videoList.style.display = 'block';
+        }
+
+        function playVideo(videoPath, containerId) {
+            // Получаем контейнер для плеера на основе переданного containerId
+            const playerContainer = document.getElementById(containerId);
+
+            if (playerContainer.style.display === 'block') {
+                playerContainer.style.display = 'none';
+                playerContainer.innerHTML = ''; // Удаляем плеер, если уже открыт
+                return;
+            }
+
+            playerContainer.innerHTML = `
+        <video controls width="600">
+            <source src="${videoPath}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    `;
+            playerContainer.style.display = 'block';
         }
 
         async function logoutUser() {

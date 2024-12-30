@@ -46,6 +46,13 @@ public class VideoService {
                 .collect(Collectors.toList());
     }
 
+    public VideoDTO getVideoById(Long videoId) {
+        Video video = videoRepository.findById(videoId)
+                .orElseThrow(() -> new NotFoundException("video not found"));
+
+        return videoMapper.toDTO(video);
+    }
+
     public void addVideoToCourse(Long courseId, VideoDTO videoDTO) {
         Video video = videoMapper.toEntity(videoDTO);
 

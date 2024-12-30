@@ -1,13 +1,13 @@
 package ru.home.courses.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import ru.home.courses.dto.VideoDTO;
@@ -15,6 +15,8 @@ import ru.home.courses.exception.NotFoundException;
 import ru.home.courses.service.OrderService;
 import ru.home.courses.service.VideoService;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -61,5 +63,16 @@ public class VideoController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"videos.zip\"")
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
+    }
+
+    @GetMapping("/play/{id}")
+    public ResponseEntity<Resource> getVideo(@PathVariable Long id) {
+        VideoDTO video = videoService.getVideoById(id);
+        Path videoPath = Paths.get("courses", video.getPath(), video.getName()).normalize();
+
+        Resource videoResource = new FileSystemResource(videoPath.toFile());
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "video/mp4") // Указываем тип файла
+                .body(videoResource);
     }
 }
