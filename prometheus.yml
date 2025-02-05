@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'spring-app'              # Уникальное имя для вашего приложения
+    metrics_path: '/actuator/prometheus'  # Путь к эндпоинту метрик
+    static_configs:
+      - targets: ['192.168.1.128:8080']  # Для доступа к локальному хосту из контейнера

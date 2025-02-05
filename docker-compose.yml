@@ -1,0 +1,27 @@
+services:
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml  # Правильный путь в контейнере
+    networks:
+      - monitoring
+    extra_hosts:  # Добавлено для Windows
+      - "host.docker.internal:host-gateway"
+  grafana:
+    image: grafana/grafana-enterprise
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana  # Стандартный путь Grafana
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+
+networks:
+  monitoring:
+
+volumes:
+  grafana_data:
