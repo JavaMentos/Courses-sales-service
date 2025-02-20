@@ -20,6 +20,38 @@ services:
     depends_on:
       - prometheus
 
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node  # Для одиночного узла
+      - xpack.security.enabled=false  # Отключаем безопасность для простоты
+    networks:
+      - monitoring
+
+  logstash:
+    image: logstash:8.11.0
+    ports:
+      - "5000:5000"  # Порт для TCP-входа от приложения
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    depends_on:
+      - elasticsearch
+    networks:
+      - monitoring
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # Для Windows/Mac
+
+  kibana:
+    image: kibana:8.11.0
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - monitoring
+
 networks:
   monitoring:
 
