@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
 
+                        .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/courses/**").permitAll()
                         .requestMatchers("/register", "/register.html").permitAll()
                         .requestMatchers(HttpMethod.POST, "/courses/**").hasRole("ADMIN")
@@ -44,7 +45,6 @@ public class SecurityConfig {
 
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/auth").permitAll()
-                        .requestMatchers("/actuator/**").permitAll()
 
                         .anyRequest().authenticated()
                 )

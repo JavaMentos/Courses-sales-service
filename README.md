@@ -1,9 +1,5 @@
-http://localhost:9090/targets
+Количество запросов
+increase(http_server_requests_seconds_count{application="Courses-sales-service", uri="/courses", method="GET", status="200"}[5m])
 
-![img_1.png](images/targets.png)
-
-url grafana
-http://localhost:3000/
-
-data source
-http://prometheus:9090
+максимальное время выполнения
+http_server_requests_seconds_max{application="Courses-sales-service", uri="/courses", method="GET", status="200"}
